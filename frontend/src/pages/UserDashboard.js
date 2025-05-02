@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-
+import { useLocation } from 'react-router-dom';
 function UserDashboard() {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [myBookings, setMyBookings] = useState([]);
@@ -8,7 +8,8 @@ function UserDashboard() {
 
   const token = localStorage.getItem('token');
   const userEmail = localStorage.getItem('userEmail');
-  
+  const location = useLocation();
+  const email = location.state?.email;
   useEffect(() => {
     if (!token) return;
     fetchData();
@@ -33,8 +34,9 @@ function UserDashboard() {
 
   const fetchMyBookings = async () => {
     try {
-        console.log(localStorage.getItem('email'))
-      const res = await axios.get(`http://localhost:5000/api/bookings/my-bookings?email=nitin@example.com`, {
+        const c = email;
+        console.log('email',email)
+      const res = await axios.get(`http://localhost:5000/api/bookings/my-bookings?email=${c}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMyBookings(res.data);
@@ -42,10 +44,10 @@ function UserDashboard() {
       console.error('Failed to fetch your bookings:', err);
     }
   };
-  const handleBook = async (slotId) => {
+  const handleBook = async (slotId,email) => {
     try {
         console.log(userEmail)
-      await axios.post('http://localhost:5000/api/bookings/book', {slotId});
+      await axios.post('http://localhost:5000/api/bookings/book', {slotId,email});
       alert('Booked!');
       fetchData(); // Refresh available list
     } catch (err) {
@@ -71,7 +73,7 @@ function UserDashboard() {
               {new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
 {new Date(slot.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 
-              <button onClick={() => handleBook(slot.slotId)}>Book</button>
+              <button onClick={() => handleBook(slot.slotId,email)}>Book</button>
             </li>
           ))}
         </ul>

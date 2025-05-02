@@ -35,7 +35,7 @@ router.get('/available', async (req, res) => {
 router.get('/my-bookings', async (req, res) => {
    
     const { email } = req.query;
-  
+    console.log('my_booking_email',email);
     try {
       const myBookings = await TimeSlot.find({ bookedByEmail: email });
       res.json(myBookings);
@@ -47,7 +47,7 @@ router.get('/my-bookings', async (req, res) => {
 
 // POST /api/bookings/book
 router.post('/book', async (req, res) => {
-    const { slotId } = req.body;
+    const { slotId,email } = req.body;
     console.log(slotId)
     try {
       const slot = await TimeSlot.findOne({slotId});
@@ -56,7 +56,7 @@ router.post('/book', async (req, res) => {
       if (slot.status !== 'available') return res.status(400).json({ message: 'Slot already booked' });
   
       slot.status = 'pending';
-      slot.bookedByEmail= 'nitin@example.com';
+      slot.bookedByEmail= email;
       // Ensure auth middleware sets req.user
     
       await slot.save();
@@ -85,6 +85,24 @@ router.post('/book', async (req, res) => {
       res.status(500).json({ message: 'Server error',err });
     }
   });
+  router.post('/gpcancel', async (req, res) => {
+    const { slotId } = req.body;
+    console.log(slotId)
+    try {
+      const slot = await TimeSlot.findOne({slotId});
+      console.log(res.body)
+      if (!slot) return res.status(404).json({ message: 'Slot not found' });
+      if (slot.status !== 'pending') return res.status(400).json({ message: 'Slot already booked' });
   
+      slot.status = 'available';
+      // Ensure auth middleware sets req.user
+    
+      await slot.save();
+  
+      res.json({ message: 'Slot confirmed successfully', slot });
+    } catch (err) {
+      res.status(500).json({ message: 'Server error',err });
+    }
+  });
 
 module.exports = router;

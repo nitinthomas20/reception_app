@@ -49,6 +49,15 @@ function GPDashboard() {
       alert('Slot already booked or failed.'+ err);
     }
   };
+  const handleCancel = async (slotId) => {
+    try {
+      await axios.post('http://localhost:5000/api/bookings/gpcancel', {slotId});
+      alert('Cancelled!');
+      fetchData(); // Refresh available list
+    } catch (err) {
+      alert('Slot already booked or failed.'+ err);
+    }
+  };
   
 
   return (
@@ -69,6 +78,7 @@ function GPDashboard() {
 {new Date(slot.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
 
               <button onClick={() => handleBook(slot.slotId)}>Confirm</button>
+              <button onClick={() => handleCancel(slot.slotId)}>Cancel</button>
             </li>
           ))}
         </ul>

@@ -14,7 +14,8 @@ function Login() {
       localStorage.setItem('role', res.data.role);
 
       
-        setTimeout(() => navigate('/user'), 0);
+      setTimeout(() => navigate('/user', { state: { email: res.data.email } }), 0);
+
       
       
     } catch (err) {
