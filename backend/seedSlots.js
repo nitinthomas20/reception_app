@@ -1,52 +1,28 @@
 const mongoose = require('mongoose');
-const TimeSlot = require('./models/TimeSlot'); // adjust path if needed
+const Home = require('./models/Home'); // adjust the path if needed
 
-// Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/gpbooking', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
+// Replace with your actual MongoDB URI
+const MONGO_URI = 'mongodb://localhost:27017/gpbooking';
 
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', async () => {
-  console.log('Connected to MongoDB');
-
-  await seedTimeSlots();
-  mongoose.disconnect();
-});
-
-function generateSlotId(date) {
-  const yyyy = date.getFullYear();
-  const mm = String(date.getMonth() + 1).padStart(2, '0');
-  const dd = String(date.getDate()).padStart(2, '0');
-  const hh = String(date.getHours()).padStart(2, '0');
-  const min = String(date.getMinutes()).padStart(2, '0');
-  return `SLOT_${yyyy}${mm}${dd}_${hh}${min}`;
-}
-
-async function seedTimeSlots() {
+async function seedHomeData() {
   try {
-    await TimeSlot.deleteMany(); // optional: clears existing slots
+    await mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
-    const slots = [];
+    // Optional: clear existing entries
+    await Home.deleteMany({});
 
-    const now = new Date();
-    for (let i = 0; i < 20; i++) {
-      const start = new Date(now.getTime() + i * 60 * 60 * 1000); // every hour
-      const end = new Date(start.getTime() + 30 * 60 * 1000); // 30 minutes per slot
+    // Insert sample description
+    const homeDescription = new Home({
+      description: "Welcome to our health & wellness service portal. Book appointments with GPs, fitness coaches, and more—trusted professionals, all in one place."
+    });
 
-      slots.push({
-        slotId: generateSlotId(start),
-        startTime: start,
-        endTime: end,
-        status: 'available',
-      });
-    }
+    await homeDescription.save();
 
-    await TimeSlot.insertMany(slots);
-    console.log('Seeded time slots successfully!');
+    console.log("Home data inserted successfully.");
+    mongoose.disconnect();
   } catch (err) {
-    console.error('Error seeding time slots:', err);
+    console.error("Error seeding home data:", err);
   }
 }
+
+seedHomeData();

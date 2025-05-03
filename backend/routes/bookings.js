@@ -2,11 +2,19 @@ const express = require('express');
 const router = express.Router();
 const TimeSlot = require('../models/TimeSlot');
 const auth = require('../middleware/authMiddleware');
-
+const Home = require('../models/Home')
 // GET /api/bookings/available — available slots = future slots not booked
 router.get('/available', async (req, res) => {
     try {
       const slots = await TimeSlot.find({ status: 'available' });
+      res.json(slots);
+    } catch (err) {
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+  router.get('/home', async (req, res) => {
+    try {
+      const slots = await Home.findOne().select('description');
       res.json(slots);
     } catch (err) {
       res.status(500).json({ message: 'Server error' });
@@ -60,13 +68,15 @@ router.post('/book', async (req, res) => {
       // Ensure auth middleware sets req.user
     
       await slot.save();
-  
+      const io = req.app.get('io');
+      io.emit('slotBooked', { slotId: slot.slotId }); // Broadcast to all clients
       res.json({ message: 'Slot booked successfully', slot });
     } catch (err) {
       res.status(500).json({ message: 'Server error',err });
     }
   });
-  router.post('/gpbook', async (req, res) => {
+
+router.post('/gpbook', async (req, res) => {
     const { slotId } = req.body;
     console.log(slotId)
     try {
@@ -85,7 +95,8 @@ router.post('/book', async (req, res) => {
       res.status(500).json({ message: 'Server error',err });
     }
   });
-  router.post('/gpcancel', async (req, res) => {
+
+router.post('/gpcancel', async (req, res) => {
     const { slotId } = req.body;
     console.log(slotId)
     try {

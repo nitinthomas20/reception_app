@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+import { io } from 'socket.io-client';
 function UserDashboard() {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [myBookings, setMyBookings] = useState([]);
@@ -14,7 +15,20 @@ function UserDashboard() {
     if (!token) return;
     fetchData();
   }, []);
+  const [socket] = useState(() => io('http://localhost:5000'));
 
+  useEffect(() => {
+    socket.on('connect', () => {
+      console.log('Connected to WebSocket:', socket.id);
+    });
+  
+    socket.on('slotBooked', (data) => {
+      console.log('Slot booked by someone else:', data);
+      fetchData(); // Refresh the list when someone books
+    });
+  
+    return () => socket.disconnect(); // Clean up
+  }, []);
   const fetchData = async () => {
     setLoading(true);
     await Promise.all([fetchAvailableSlots(),fetchMyBookings()]);
