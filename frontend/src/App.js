@@ -5,6 +5,7 @@ import Signup from './pages/Signup';
 import UserDashboard from './pages/UserDashboard';
 import GPDashboard from './pages/GPDashboard';
 import Home from './pages/Home';
+import ServiceDetails from './pages/ServiceDetails';
 
 function App() {
   const [role, setRole] = useState(localStorage.getItem('role'));
@@ -25,6 +26,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/home" element={<Home />} />
+        <Route path ="/services/:serviceId" element ={<ServiceDetails />} />
         <Route
           path="/user"
           element={role === 'user' ? <UserDashboard /> : <UserDashboard />}

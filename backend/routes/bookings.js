@@ -3,6 +3,8 @@ const router = express.Router();
 const TimeSlot = require('../models/TimeSlot');
 const auth = require('../middleware/authMiddleware');
 const Home = require('../models/Home')
+const Service =require('../models/Services');
+const Professional = require('../models/Professional');
 // GET /api/bookings/available — available slots = future slots not booked
 router.get('/available', async (req, res) => {
     try {
@@ -16,6 +18,30 @@ router.get('/available', async (req, res) => {
     try {
       const slots = await Home.findOne().select('description');
       res.json(slots);
+    } catch (err) {
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+  router.get('/service', async (req, res) => {
+    try {
+      const services = await Service.find();
+      res.json(services);
+    } catch (err) {
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+  router.get('/service/:serviceId', async (req, res) => {
+    try {
+      const services = await Service.findOne({id: req.params.serviceId});
+      res.json(services);
+    } catch (err) {
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+  router.get('/service/:serviceId/professionals', async (req, res) => {
+    try {
+      const services = await Professional.find({serviceId: req.params.serviceId});
+      res.json(services);
     } catch (err) {
       res.status(500).json({ message: 'Server error' });
     }

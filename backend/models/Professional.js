@@ -1,0 +1,18 @@
+const mongoose = require('mongoose');
+
+const timeSlotSchema = new mongoose.Schema({
+  startTime: { type: Date, required: true },
+  endTime: { type: Date, required: true },
+  status: { type: String, default: 'available' } // optional: 'available', 'booked', etc.
+});
+
+const professionalSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  photoUrl: { type: String },
+  shortDescription: { type: String },
+  detailedDescription: { type: String },
+  serviceId: { type: String, required: true }, // links to your Services schema by custom id
+  availableTimeSlots: [timeSlotSchema]
+});
+
+module.exports = mongoose.model('Professional', professionalSchema);

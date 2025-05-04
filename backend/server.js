@@ -34,7 +34,6 @@ io.on('connection', (socket) => {
   
   // Export io to use in routes
   app.set('io', io);
-  
 app.listen(5000, () => {
   console.log('Server running on http://localhost:5000');
 });
