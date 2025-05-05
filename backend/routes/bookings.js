@@ -14,6 +14,14 @@ router.get('/available', async (req, res) => {
       res.status(500).json({ message: 'Server error' });
     }
   });
+  router.get('/available/:professionalId', async (req, res) => {
+    try {
+      const slots = await TimeSlot.find({ status: 'available' ,gpId: req.params.professionalId });
+      res.json(slots);
+    } catch (err) {
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
   router.get('/home', async (req, res) => {
     try {
       const slots = await Home.findOne().select('description');
@@ -41,6 +49,15 @@ router.get('/available', async (req, res) => {
   router.get('/service/:serviceId/professionals', async (req, res) => {
     try {
       const services = await Professional.find({serviceId: req.params.serviceId});
+      res.json(services);
+    } catch (err) {
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+
+  router.get('/professionals/:professionalId', async (req, res) => {
+    try {
+      const services = await Professional.find({id: req.params.professionalId});
       res.json(services);
     } catch (err) {
       res.status(500).json({ message: 'Server error' });

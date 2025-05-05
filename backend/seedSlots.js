@@ -1,92 +1,70 @@
 const mongoose = require('mongoose');
 const { v4: uuidv4 } = require('uuid');
 
-const professionalSchema = new mongoose.Schema({
-  name: String,
-  photoUrl: String,
-  shortDescription: String,
-  detailedDescription: String,
-  serviceId: String,
-  availableTimeSlots: [
-    {
-      startTime: Date,
-      endTime: Date,
-      status: { type: String, default: 'available' }
-    }
-  ]
+// Replace with your actual MongoDB URI
+const MONGO_URI = 'mongodb://localhost:27017/gpbooking';
+
+const timeSlotSchema = new mongoose.Schema({
+  slotId: { type: String, unique: true },
+  startTime: Date,
+  endTime: Date,
+  gpId: { type: String, required: true },
+  bookedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  bookedByEmail: { type: String, default: null },
+  status: {
+    type: String,
+    enum: ['available', 'booked', 'pending'],
+    default: 'available',
+  },
 });
 
-const Professional = mongoose.model('Professional', professionalSchema);
+const TimeSlot = mongoose.model('TimeSlot', timeSlotSchema);
 
-// Connect to MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/gpbooking', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
-
-// Hardcoded service IDs (from your JSON)
-const services = [
-  {
-    id: '6fba20e4-5923-4b93-a797-7c08fb21db7a',
-    name: 'General Practitioner'
-  },
-  {
-    id: '6a69ccd1-ef06-48ff-b285-6d93c4ba2005',
-    name: 'Fitness Coaching'
-  },
-  {
-    id: 'cea9608e-f2cd-45c2-acac-8b284c11f172',
-    name: 'Nutrition Consultation'
-  },
-  {
-    id: '4d5f060b-63ae-46fb-b21f-bb120899bebb',
-    name: 'Mental Health Support'
-  },
-  {
-    id: '1c54ba34-1cee-44ed-88dc-c87af16be159',
-    name: 'Physiotherapy'
-  }
+const gpIds = [
+  "91f286b7-f943-4bd5-a157-a9f41b76d936",
+  "7c70a6d7-4377-403a-b41f-6aefbc7b1abe",
+  "0984664b-49f8-41d3-90a4-96eba3aa170b",
+  "62898b09-d4e0-4f10-a0f7-54e2f5a3b0ae",
+  "85d69f55-763e-452e-8227-c42594a9e81f",
+  "9265df82-05fa-4883-a382-7ced91e539f0",
+  "dc19b0c2-b39b-45f2-bd68-f3781bafa0f5",
+  "5a6254ae-79d2-4190-97ef-41fe3e5d1fe5",
+  "c2df61eb-1921-4c46-9b97-6acf414405ef"
 ];
 
-// Utility to generate 3 random time slots per professional
-function generateTimeSlots() {
-  const slots = [];
-  const now = new Date();
-
-  for (let i = 1; i <= 3; i++) {
-    const startTime = new Date(now.getTime() + i * 86400000 + 9 * 3600000); // i days from now at 9 AM
-    const endTime = new Date(startTime.getTime() + 60 * 60 * 1000); // 1-hour slot
-    slots.push({ startTime, endTime, status: 'available' });
-  }
-
-  return slots;
-}
-
-async function seed() {
+async function generateSlots() {
   try {
-    await Professional.deleteMany({}); // clear old entries
+    await mongoose.connect(MONGO_URI);
+    console.log("Connected to MongoDB");
 
-    for (const service of services) {
-      for (let i = 1; i <= 5; i++) {
-        const prof = new Professional({
-          name: `${service.name} Specialist ${i}`,
-          photoUrl: `https://randomuser.me/api/portraits/med/men/${Math.floor(Math.random() * 90)}.jpg`,
-          shortDescription: `Experienced ${service.name.toLowerCase()} professional.`,
-          detailedDescription: `This professional has over ${i + 2} years of experience in the ${service.name} domain and has served hundreds of clients.`,
-          serviceId: service.id,
-          availableTimeSlots: generateTimeSlots()
+    const now = new Date();
+
+    for (const gpId of gpIds) {
+      for (let i = 0; i < 5; i++) {
+        const start = new Date(now.getTime() + i * 24 * 60 * 60 * 1000); // i days from now
+        start.setHours(10, 0, 0, 0); // 10:00 AM
+        const end = new Date(start.getTime() + 60 * 60 * 1000); // 1 hour later
+
+        const slot = new TimeSlot({
+          slotId: uuidv4(),
+          startTime: start,
+          endTime: end,
+          gpId,
+          status: 'available',
         });
 
-        await prof.save();
+        await slot.save();
+        console.log(`Created slot for GP: ${gpId} at ${start}`);
       }
     }
 
-    console.log('✅ Seeded professionals successfully.');
+    console.log("Time slots generated successfully.");
   } catch (err) {
-    console.error('❌ Error seeding professionals:', err);
+    console.error("Error generating time slots:", err);
   } finally {
-    mongoose.disconnect();
+    await mongoose.disconnect();
+    console.log("Disconnected from MongoDB");
   }
 }
 
-seed();
+generateSlots();

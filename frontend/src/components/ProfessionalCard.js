@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const ProfessionalCard = ({ professional, serviceId }) => {
+const ProfessionalCard = ({ professional }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/services/${serviceId}/professionals/${professional._id}`);
+    navigate(`/professionals/${professional.id}`);
   };
 
   return (

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const { v4: uuidv4 } = require('uuid');
 const timeSlotSchema = new mongoose.Schema({
   startTime: { type: Date, required: true },
   endTime: { type: Date, required: true },
@@ -7,6 +7,7 @@ const timeSlotSchema = new mongoose.Schema({
 });
 
 const professionalSchema = new mongoose.Schema({
+  id: { type: String, default: uuidv4 },
   name: { type: String, required: true },
   photoUrl: { type: String },
   shortDescription: { type: String },

@@ -15,20 +15,9 @@ function UserDashboard() {
     if (!token) return;
     fetchData();
   }, []);
-  const [socket] = useState(() => io('http://localhost:5000'));
+ 
 
-  useEffect(() => {
-    socket.on('connect', () => {
-      console.log('Connected to WebSocket:', socket.id);
-    });
   
-    socket.on('slotBooked', (data) => {
-      console.log('Slot booked by someone else:', data);
-      fetchData(); // Refresh the list when someone books
-    });
-  
-    return () => socket.disconnect(); // Clean up
-  }, []);
   const fetchData = async () => {
     setLoading(true);
     await Promise.all([fetchAvailableSlots(),fetchMyBookings()]);
@@ -74,24 +63,8 @@ function UserDashboard() {
     <div style={{ padding: '20px' }}>
       <h2>Welcome, User!</h2>
 
-      <h3>Available Time Slots</h3>
-      {loading ? (
-        <p>Loading...</p>
-      ) : availableSlots.length === 0 ? (
-        <p>No slots available</p>
-      ) : (
-        <ul>
-          {availableSlots.map((slot) => (
-            <li key={slot.slotId}>
-              
-              {new Date(slot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
-{new Date(slot.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-
-              <button onClick={() => handleBook(slot.slotId,email)}>Book</button>
-            </li>
-          ))}
-        </ul>
-      )}
+      
+     
 
       <h3>My Bookings</h3>
       {loading ? (
