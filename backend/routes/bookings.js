@@ -111,8 +111,7 @@ router.post('/book', async (req, res) => {
       // Ensure auth middleware sets req.user
     
       await slot.save();
-      const io = req.app.get('io');
-      io.emit('slotBooked', { slotId: slot.slotId }); // Broadcast to all clients
+     
       res.json({ message: 'Slot booked successfully', slot });
     } catch (err) {
       res.status(500).json({ message: 'Server error',err });

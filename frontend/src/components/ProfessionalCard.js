@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const ProfessionalCard = ({ professional }) => {
+const ProfessionalCard = ({ professional, serviceId }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -14,7 +14,7 @@ const ProfessionalCard = ({ professional }) => {
       style={{
         display: 'flex',
         alignItems: 'center',
-        width: '90%',
+        width: '70%',
         margin: '1rem auto',
         padding: '1rem',
         border: '1px solid #ccc',
@@ -31,10 +31,10 @@ const ProfessionalCard = ({ professional }) => {
         src={professional.photoUrl}
         alt={professional.name}
         style={{
-          width: '100px',
+          width: '120px',
           height: '100px',
           objectFit: 'cover',
-          borderRadius: '50%',
+          borderRadius: '10%',
           marginRight: '1.5rem'
         }}
       />

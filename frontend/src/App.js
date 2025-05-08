@@ -7,6 +7,8 @@ import GPDashboard from './pages/GPDashboard';
 import Home from './pages/Home';
 import ServiceDetails from './pages/ServiceDetails';
 import ProfessionalDetails from './pages/ProfessionalDetails';
+import { UserProvider } from './pages/UserContext';
+import Entry from './pages/Entry';
 
 function App() {
   const [role, setRole] = useState(localStorage.getItem('role'));
@@ -21,9 +23,11 @@ function App() {
   }, []);
 
   return (
+    
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/" element={<Navigate to="/entry" />} />
+        <Route path="/entry" element={<Entry />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/home" element={<Home />} />
@@ -40,6 +44,7 @@ function App() {
         />
       </Routes>
     </Router>
+    
   );
 }
 

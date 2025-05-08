@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import ProfessionalCard from '../components/ProfessionalCard';
+import { motion } from 'framer-motion';
 
 export default function ServiceDetails() {
   const { serviceId } = useParams();
@@ -14,8 +15,6 @@ export default function ServiceDetails() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        console.log("Fetching for serviceId:", serviceId);
-
         const [serviceRes, professionalsRes] = await Promise.all([
           axios.get(`http://localhost:5000/api/bookings/service/${serviceId}`),
           axios.get(`http://localhost:5000/api/bookings/service/${serviceId}/professionals`)
@@ -34,18 +33,74 @@ export default function ServiceDetails() {
     fetchData();
   }, [serviceId]);
 
-  if (loading) return <div style={{ padding: '2rem' }}><p>Loading...</p></div>;
-  if (error) return <div style={{ padding: '2rem' }}><p>{error}</p></div>;
+  const containerStyle = {
+    padding: '2rem 1rem',
+    maxWidth: '1200px',
+    margin: '0 auto',
+    fontFamily: "'Segoe UI', sans-serif",
+  };
+
+  const headingStyle = {
+    textAlign: 'center',
+    fontSize: '2.5rem',
+    color: '#4F46E5',
+    fontWeight: 'bold',
+    marginBottom: '0.5rem',
+  };
+
+  const subheadingStyle = {
+    textAlign: 'center',
+    color: '#555',
+    fontSize: '1.125rem',
+    marginBottom: '2rem',
+  };
+
+  const gridStyle = {
+    display: 'grid',
+    gridTemplateColumns: '1fr',
+    gap: '1.5rem',
+    
+  };
+
+  const loadingStyle = {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '50vh',
+    fontSize: '1.25rem',
+    color: '#666',
+  };
+
+  const errorStyle = {
+    ...loadingStyle,
+    color: '#D32F2F',
+  };
+
+  if (loading) return <div style={loadingStyle}>Loading...</div>;
+  if (error) return <div style={errorStyle}>{error}</div>;
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h2>{serviceName}</h2>
-      <p>Meet our trusted professionals:</p>
-      <div>
-        {professionals.map(prof => (
-          <ProfessionalCard key={prof.id} professional={prof} serviceId={serviceId} />
+    <motion.div
+      style={containerStyle}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      <h2 style={headingStyle}>{serviceName}</h2>
+      <p style={subheadingStyle}>Meet our trusted professionals</p>
+
+      <div style={gridStyle}>
+        {professionals.map((prof, index) => (
+          <motion.div
+            key={prof.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 * index, duration: 0.4 }}
+          >
+            <ProfessionalCard professional={prof} serviceId={serviceId} />
+          </motion.div>
         ))}
       </div>
-    </div>
+    </motion.div>
   );
 }

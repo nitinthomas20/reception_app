@@ -1,27 +1,50 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useLocation } from 'react-router-dom';
-import { io } from 'socket.io-client';
+
 function UserDashboard() {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [myBookings, setMyBookings] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [userData, setUserData] = useState(null);
 
   const token = localStorage.getItem('token');
-  const userEmail = localStorage.getItem('userEmail');
-  const location = useLocation();
-  const email = location.state?.email;
-  useEffect(() => {
-    if (!token) return;
-    fetchData();
-  }, []);
- 
 
-  
+  useEffect(() => {
+    if (token) {
+      fetchData();
+    }
+  }, []);
+
   const fetchData = async () => {
     setLoading(true);
-    await Promise.all([fetchAvailableSlots(),fetchMyBookings()]);
+    try {
+      const user = await fetchUser(); // fetch user first
+      if (user?.email) {
+        await Promise.all([
+          fetchAvailableSlots(),
+          fetchMyBookings(user.email),
+        ]);
+      }
+    } catch (err) {
+      console.error('Failed to load dashboard data:', err);
+    }
     setLoading(false);
+  };
+
+  const fetchUser = async () => {
+    try {
+      const res = await axios.get('http://localhost:5000/api/user/profile', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUserData(res.data);
+      localStorage.setItem('namee',res.data.name)
+      console.log('name',localStorage.getItem('namee'));
+
+      return res.data;
+    } catch (err) {
+      console.error('Failed to fetch user:', err);
+      return null;
+    }
   };
 
   const fetchAvailableSlots = async () => {
@@ -35,11 +58,9 @@ function UserDashboard() {
     }
   };
 
-  const fetchMyBookings = async () => {
+  const fetchMyBookings = async (email) => {
     try {
-        const c = email;
-        console.log('email',email)
-      const res = await axios.get(`http://localhost:5000/api/bookings/my-bookings?email=${c}`, {
+      const res = await axios.get(`http://localhost:5000/api/bookings/my-bookings?email=${email}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMyBookings(res.data);
@@ -47,24 +68,10 @@ function UserDashboard() {
       console.error('Failed to fetch your bookings:', err);
     }
   };
-  const handleBook = async (slotId,email) => {
-    try {
-        console.log(userEmail)
-      await axios.post('http://localhost:5000/api/bookings/book', {slotId,email});
-      alert('Booked!');
-      fetchData(); // Refresh available list
-    } catch (err) {
-      alert('Slot already booked or failed.'+ err);
-    }
-  };
-  
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>Welcome, User!</h2>
-
-      
-     
+      <h2>Welcome{userData ? `, ${userData.name}` : ''}!</h2>
 
       <h3>My Bookings</h3>
       {loading ? (
@@ -75,8 +82,15 @@ function UserDashboard() {
         <ul>
           {myBookings.map((booking) => (
             <li key={booking._id}>
-               {new Date(booking.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - 
-               {new Date(booking.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {new Date(booking.startTime).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}{' '}
+              -{' '}
+              {new Date(booking.endTime).toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
             </li>
           ))}
         </ul>
