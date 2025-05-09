@@ -71,6 +71,14 @@ router.get('/available', async (req, res) => {
       res.status(500).json({ message: 'Server error' });
     }
   });
+  router.get('/gpending/:gpId', async (req, res) => {
+    try {
+      const slots = await TimeSlot.find({ status: 'pending', gpId: req.params.gpId });
+      res.json(slots);
+    } catch (err) {
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
   
 
 // GET /api/bookings/my-bookings
