@@ -61,6 +61,7 @@ export default function Home() {
         transition={{ duration: 0.5 }}
         style={{ marginBottom: '2rem', textAlign: 'center' }}
       >
+        <h1>Hello Annn</h1>
         <h1 style={{ fontSize: '2.5rem', color: '#1f2937', fontWeight: 600 }}>
           Welcome {localStorage.getItem('namee')?.toUpperCase()}
         </h1>
