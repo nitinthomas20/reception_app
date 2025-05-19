@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useUser } from './UserContext';
-
+import PayPalBooking from '../components/PayPalBookingl';
 export default function ProfessionalDetails() {
+  
   const navigate = useNavigate();
   const { professionalId } = useParams();
   const [professional, setProfessional] = useState(null);
@@ -89,7 +90,7 @@ export default function ProfessionalDetails() {
               width: '120px',
               height: '120px',
               objectFit: 'cover',
-              border: '3px  #4f46e5',
+              border: '3px solid #4f46e5',
             }}
           />
           <div>
@@ -110,49 +111,42 @@ export default function ProfessionalDetails() {
           {timeSlots && timeSlots.length > 0 ? (
             <div style={{ display: 'grid', gap: '1rem' }}>
               {userData &&
-                timeSlots.map((slot) => (
-                  <div
-                    key={slot.slotId}
-                    style={{
-                      background: '#f9fafb',
-                      padding: '1rem',
-                      borderRadius: '0.75rem',
-                      boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <div>
-                      <strong style={{ color: '#111827' }}>
-                        {new Date(slot.startTime).toLocaleString()} –{' '}
-                        {new Date(slot.endTime).toLocaleString()}
-                      </strong>
-                      <span style={{ color: 'green', marginLeft: '0.75rem' }}>({slot.status})</span>
-                    </div>
-                    <button
-                      onClick={() => handleBook(slot.slotId, userData.email)}
-                      style={{
-                        backgroundColor: '#4f46e5',
-                        color: '#fff',
-                        padding: '0.5rem 1rem',
-                        borderRadius: '0.5rem',
-                        border: 'none',
-                        cursor: 'pointer',
-                        fontWeight: '600',
-                      }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#4338ca')}
-                      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#4f46e5')}
-                    >
-                      Book
-                    </button>
-                  </div>
-                ))}
+  timeSlots.map((slot) => (
+    <div
+      key={slot.slotId}
+      style={{
+        background: '#f9fafb',
+        padding: '1rem',
+        borderRadius: '0.75rem',
+        boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+      }}
+    >
+      <div>
+        <strong style={{ color: '#111827' }}>
+          {new Date(slot.startTime).toLocaleString()} –{' '}
+          {new Date(slot.endTime).toLocaleString()}
+        </strong>
+        <span style={{ color: 'green', marginLeft: '0.75rem' }}>({slot.status})</span>
+      </div>
+
+      <div style={{ marginTop: '1rem' }}>
+      <PayPalBooking
+      amount="10.00" // or dynamically set price if needed
+      onPaymentSuccess={() => handleBook(slot.slotId, userData.email)}
+    />
+      </div>
+    </div>
+  ))}
             </div>
           ) : (
             <p>No available slots.</p>
           )}
         </div>
+
       </div>
     </div>
   );
