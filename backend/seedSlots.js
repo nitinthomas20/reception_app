@@ -1,50 +1,30 @@
-const mongoose = require('mongoose');
-const { v4: uuidv4 } = require('uuid');
-const TimeSlot = require('./models/TimeSlot'); // Adjust path if needed
+// addMemberField.js
+const mongoose = require("mongoose")
 
-// Replace with your MongoDB connection string
-const mongoURI = 'mongodb://localhost:27017/gpbooking';
-
-const gpList = [
-  { email: 'akash@example.com', gpId: 'gp001' },
-  { email: 'akshay@example.com', gpId: 'gp002' },
-];
-
-async function createTimeSlots() {
-  await mongoose.connect(mongoURI);
-  console.log('Connected to MongoDB');
-
-  const today = new Date();
-  const timeSlots = [];
-
-  gpList.forEach(({ email, gpId }) => {
-    for (let i = 0; i < 5; i++) {
-      const start = new Date(today);
-      start.setDate(today.getDate() + i); // 5 days starting today
-      start.setHours(9 + i, 0, 0, 0); // Start time 9:00, 10:00... etc.
-
-      const end = new Date(start);
-      end.setMinutes(end.getMinutes() + 30); // 30-minute slot
-
-      timeSlots.push({
-        slotId: uuidv4(),
-        startTime: start,
-        endTime: end,
-        gpId: gpId,
-        gpEmail: email,
-        status: 'available',
-      });
-    }
-  });
-
-  try {
-    await TimeSlot.insertMany(timeSlots);
-    console.log('Time slots inserted successfully');
-  } catch (err) {
-    console.error('Error inserting time slots:', err);
-  } finally {
-    await mongoose.disconnect();
-  }
+const MONGO_URI = "mongodb://localhost:27017/gpbooking" // replace if different
+const connectDB = async () => {
+  await mongoose.connect(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  console.log("Connected to DB")
 }
 
-createTimeSlots();
+const run = async () => {
+  await connectDB()
+
+  const User = mongoose.model("users", new mongoose.Schema({}, { strict: false }))
+
+  const result = await User.updateMany(
+    { Member: { $exists: false } }, // only update users without `member`
+    { $set: { Member: 0 } }
+  )
+
+  console.log(`${result.modifiedCount} users updated.`)
+  process.exit()
+}
+
+run().catch(err => {
+  console.error("Error:", err)
+  process.exit(1)
+})

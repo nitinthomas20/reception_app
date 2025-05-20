@@ -5,6 +5,7 @@ const auth = require('../middleware/authMiddleware');
 const Home = require('../models/Home')
 const Service =require('../models/Services');
 const Professional = require('../models/Professional');
+const User = require('../models/User');
 // GET /api/bookings/available — available slots = future slots not booked
 router.get('/available', async (req, res) => {
     try {
@@ -14,6 +15,7 @@ router.get('/available', async (req, res) => {
       res.status(500).json({ message: 'Server error' });
     }
   });
+
   router.get('/available/:professionalId', async (req, res) => {
     try {
       const slots = await TimeSlot.find({ status: 'available' ,gpId: req.params.professionalId });
@@ -122,6 +124,35 @@ router.get('/my-bookings', async (req, res) => {
       res.status(500).json({ message: 'Error fetching bookings' });
     }
   });
+  router.post('/member', async (req, res) => {
+    const { email } = req.body;
+    try {
+      const slots = await User.find({ email: email });
+      res.json(slots);
+    } catch (err) {
+      res.status(500).json({ message: 'Server error' ,err});
+    }
+  });
+  router.post('/setmember', async (req, res) => {
+    const { email } = req.body;
+  
+    try {
+      const updatedUser = await User.findOneAndUpdate(
+        { email: email },              // Match user by email
+        { $set: { member: 1 } },       // Update `member` field to 1
+        { new: true }                  // Return the updated document
+      );
+  
+      if (!updatedUser) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      res.json(updatedUser);
+    } catch (err) {
+      res.status(500).json({ message: 'Server error', err });
+    }
+  });
+  
 
 
 // POST /api/bookings/book

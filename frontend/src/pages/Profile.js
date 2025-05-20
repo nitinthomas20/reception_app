@@ -1,14 +1,70 @@
-// Profile.js
-import React, { useState } from "react"
-
+import React, { useState, useEffect } from "react"
+import PayPalBooking from "../components/PayPalBookingl"
 const Profile = () => {
-  // Simulated user membership status (in real app, fetch from API or context)
-  const [isMember, setIsMember] = useState(false)
+  const [isMember, setIsMember] = useState(null) // null = loading, true/false = determined
 
-  const handleBuyMembership = () => {
-    // Logic to upgrade membership (e.g., call backend API, payment, etc.)
-    alert("Membership purchased!")
-    setIsMember(true)
+  useEffect(() => {
+    const fetchMembershipStatus = async () => {
+      const email = localStorage.getItem("email")
+      console.log(email)
+      if (!email) {
+        alert("Email not found in localStorage.")
+        return
+      }
+
+      try {
+        const response = await fetch("http://localhost:5000/api/bookings/member", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        })
+
+        const dataa = await response.json()
+        const data = dataa[0]; 
+        if (data && data.member === 0) {
+          setIsMember(false)
+        } else if (data && data.member === 1) {
+          setIsMember(true)
+        } else {
+          console.error("Unexpected response:", data)
+          setIsMember(false)
+        }
+      } catch (err) {
+        console.error("Error fetching membership status:", err)
+        setIsMember(false)
+      }
+    }
+
+    fetchMembershipStatus()
+  }, [])
+
+  const handleBuyMembership = async () => {
+    const email = localStorage.getItem("email")
+    if (!email) {
+      alert("Email not found in localStorage.")
+      return
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/bookings/setmember", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+
+      if (response.ok) {
+        alert("Membership purchased!")
+        setIsMember(true)
+      } else {
+        const error = await response.text()
+        alert("Failed to purchase membership: " + error)
+      }
+    } catch (err) {
+      console.error("Error purchasing membership:", err)
+      alert("Error purchasing membership.")
+    }
   }
 
   const memberFeatures = [
@@ -22,13 +78,29 @@ const Profile = () => {
     <div style={styles.container}>
       <h2 style={styles.title}>Welcome to Your Profile</h2>
 
-      {!isMember && (
+      {isMember === null && <p>Loading membership status...</p>}
+
+      {isMember === false && (
         <div style={styles.card}>
           <h3 style={styles.cardTitle}>Become a Member</h3>
           <p style={styles.cardText}>Unlock premium features and benefits.</p>
-          <button style={styles.button} onClick={handleBuyMembership}>
-            Buy Membership
-          </button>
+          <PayPalBooking
+      amount="10.00" // or dynamically set price if needed
+      onPaymentSuccess={() => handleBuyMembership()}
+    />
+        </div>
+      )}
+
+      {isMember === true && (
+        <div
+          style={{
+            ...styles.card,
+            backgroundColor: "#d4edda",
+            border: "1px solid #c3e6cb",
+          }}
+        >
+          <h3 style={styles.cardTitle}>🎉 You are a Member!</h3>
+          <p style={styles.cardText}>Enjoy your exclusive benefits below.</p>
         </div>
       )}
 
