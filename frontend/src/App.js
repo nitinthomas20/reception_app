@@ -9,6 +9,7 @@ import ServiceDetails from './pages/ServiceDetails';
 import ProfessionalDetails from './pages/ProfessionalDetails';
 import { UserProvider } from './pages/UserContext';
 import Entry from './pages/Entry';
+import Profile from './pages/Profile';
 
 function App() {
   const [role, setRole] = useState(localStorage.getItem('role'));
@@ -31,6 +32,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path ="/services/:serviceId" element ={<ServiceDetails />} />
         <Route path ="/professionals/:professionalId" element ={<ProfessionalDetails />} />
        

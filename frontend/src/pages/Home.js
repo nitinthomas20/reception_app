@@ -3,7 +3,7 @@ import axios from 'axios';
 import ServiceCard from '../components/ServiceCard';
 import { useUser } from './UserContext';
 import { motion } from 'framer-motion';
-
+import Navbar from '../components/Navbar';
 export default function Home() {
   const [homeInfo, setHomeInfo] = useState('');
   const [services, setServices] = useState([]);
@@ -55,6 +55,7 @@ export default function Home() {
         minHeight: '100vh',
       }}
     >
+     < Navbar/>
       <motion.section
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
