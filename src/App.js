@@ -1,0 +1,67 @@
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
+// Pages
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Entry from './pages/Entry';
+import Home from './pages/Home';
+import Profile from './pages/Profile';
+import UserDashboard from './pages/UserDashboard';
+import GPDashboard from './pages/GPDashboard';
+import ServiceDetails from './pages/ServiceDetails';
+import ProfessionalDetails from './pages/ProfessionalDetails';
+
+// Admin Pages
+import AdminDashboard from './pages/admin/AdminDashboard';
+import UserManagement from './pages/admin/UserManagement';
+import ManageSchedules from './pages/admin/ManageSchedules';
+import GPBookings from './pages/admin/GPBookings';
+import AdminProfile from "./pages/admin/AdminProfile"
+
+function App() {
+  const [role, setRole] = useState(localStorage.getItem('role'));
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setRole(localStorage.getItem('role'));
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  return (
+    <Router>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Navigate to="/entry" />} />
+        <Route path="/entry" element={<Entry />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+
+        {/* General Pages */}
+        <Route path="/home" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/services/:serviceId" element={<ServiceDetails />} />
+        <Route path="/professionals/:professionalId" element={<ProfessionalDetails />} />
+
+        {/* Dashboards */}
+        <Route path="/user" element={<UserDashboard />} />
+        <Route path="/gp" element={<GPDashboard />} />
+
+        {/* Admin Pages */}
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<UserManagement />} />
+        <Route path="/admin/schedules" element={<ManageSchedules />} />
+        <Route path="/admin/bookings" element={<GPBookings />} />
+        <Route path="/admin/profile" element={<AdminProfile />} />
+        
+        {/* Fallback */}
+        <Route path="*" element={<div>404 - Page Not Found</div>} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
