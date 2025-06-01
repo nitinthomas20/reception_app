@@ -11,6 +11,9 @@ import UserDashboard from './pages/UserDashboard';
 import GPDashboard from './pages/GPDashboard';
 import ServiceDetails from './pages/ServiceDetails';
 import ProfessionalDetails from './pages/ProfessionalDetails';
+import GPProfile from './pages/GPProfile';
+import GPRevenue from './pages/GPRevenue';
+import ReviewPage from './pages/ReviewPage';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -18,6 +21,9 @@ import UserManagement from './pages/admin/UserManagement';
 import ManageSchedules from './pages/admin/ManageSchedules';
 import GPBookings from './pages/admin/GPBookings';
 import AdminProfile from "./pages/admin/AdminProfile"
+import ReadReviews from './pages/admin/ReadReviews'; // ✅ Add this
+import PendingGPApproval from './pages/admin/PendingGPApproval'; // ✅ Corrected import
+
 
 function App() {
   const [role, setRole] = useState(localStorage.getItem('role'));
@@ -45,10 +51,14 @@ function App() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/services/:serviceId" element={<ServiceDetails />} />
         <Route path="/professionals/:professionalId" element={<ProfessionalDetails />} />
+        <Route path="/user/review" element={<ReviewPage />} />
 
         {/* Dashboards */}
         <Route path="/user" element={<UserDashboard />} />
         <Route path="/gp" element={<GPDashboard />} />
+        <Route path="/gp/profile" element={<GPProfile />} />
+        <Route path="/gp/revenue" element={<GPRevenue />} />
+        <Route path="/gp/review" element={<ReviewPage />} />
 
         {/* Admin Pages */}
         <Route path="/admin" element={<AdminDashboard />} />
@@ -56,7 +66,10 @@ function App() {
         <Route path="/admin/schedules" element={<ManageSchedules />} />
         <Route path="/admin/bookings" element={<GPBookings />} />
         <Route path="/admin/profile" element={<AdminProfile />} />
-        
+        <Route path="/admin/readreviews" element={<ReadReviews />} />
+       <Route path="/admin/pending-gps" element={<PendingGPApproval />} />
+
+
         {/* Fallback */}
         <Route path="*" element={<div>404 - Page Not Found</div>} />
       </Routes>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Papa from 'papaparse';
-import Navbar from '../../components/Navbar';
+import Navbar from '../../components/AdminNavbar';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -80,6 +80,11 @@ const UserManagement = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  // ✅ Remove user from UI list only
+  const removeFromList = (email) => {
+    setDisplayedUsers((prev) => prev.filter((u) => u.email !== email));
   };
 
   return (
@@ -172,7 +177,21 @@ const UserManagement = () => {
                     }
                   />
                 </td>
-                <td style={td}>✓</td>
+                <td style={td}>
+                  <button
+                    onClick={() => removeFromList(user.email)}
+                    style={{
+                      backgroundColor: '#ef4444',
+                      color: '#fff',
+                      border: 'none',
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Remove
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

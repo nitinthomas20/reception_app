@@ -2,24 +2,26 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import Navbar from '../../components/Navbar';
+import Navbar from '../../components/AdminNavbar';
 
 const ManageSchedules = () => {
+  const [gpId, setGpId] = useState('');
   const [gpEmail, setGpEmail] = useState('');
-  const [gpList, setGpList] = useState([]); // ✅ New state for GP list
+  const [gpList, setGpList] = useState([]);
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const token = localStorage.getItem('token');
 
-  // ✅ Fetch list of GPs on mount
+  // Fetch GPs
   useEffect(() => {
     const fetchGps = async () => {
       try {
         const res = await axios.get('http://localhost:5000/api/admin/gps', {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setGpList(res.data); // should be [{ name: 'Dr. A', email: 'a@email.com' }, ...]
+        console.log("GP List Response:", res.data); // ✅ Debugging log
+        setGpList(res.data);
       } catch (err) {
         console.error('Failed to fetch GP list:', err);
       }
@@ -29,7 +31,7 @@ const ManageSchedules = () => {
   }, []);
 
   const handleSubmit = async () => {
-    if (!gpEmail || !startDate || !endDate) {
+    if (!gpId || !gpEmail || !startDate || !endDate) {
       alert('Please select a GP and both start and end time.');
       return;
     }
@@ -39,24 +41,27 @@ const ManageSchedules = () => {
       return;
     }
 
+    const requestData = {
+      gpId,
+      gpEmail,
+      startTime: startDate,
+      endTime: endDate,
+      status: 'reserved',
+      createdBy: 'admin',
+    };
+
+    console.log('Submitting schedule with:', requestData); // ✅ Debugging log
+
     try {
       setSubmitting(true);
-      await axios.post(
-        'http://localhost:5000/api/block', // make sure backend matches
-        {
-          gpEmail,
-          startTime: startDate,
-          endTime: endDate,
-          status: 'reserved',
-          createdBy: 'admin',
+      await axios.post('http://localhost:5000/api/admin/block', requestData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      });
+
       alert('Reserved period set successfully.');
+      setGpId('');
       setGpEmail('');
       setStartDate(null);
       setEndDate(null);
@@ -92,13 +97,19 @@ const ManageSchedules = () => {
           boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
         }}
       >
-        {/* ✅ GP Selection */}
+        {/* GP Selection */}
         <label style={{ marginBottom: '0.5rem', display: 'block', color: '#333' }}>
           Select GP:
         </label>
         <select
-          onChange={(e) => setGpEmail(e.target.value)}
-          value={gpEmail}
+          onChange={(e) => {
+            const selectedGp = gpList.find(gp => gp._id === e.target.value);
+            if (selectedGp) {
+              setGpId(selectedGp._id);
+              setGpEmail(selectedGp.email);
+            }
+          }}
+          value={gpId}
           required
           style={{
             padding: '0.5rem',
@@ -109,8 +120,10 @@ const ManageSchedules = () => {
           }}
         >
           <option value="">-- Select GP --</option>
-          {gpList.map((gp, index) => (
-            <option key={index} value={gp.email}>{gp.name}</option>
+          {gpList.map((gp) => (
+            <option key={gp._id} value={gp._id}>
+              {gp.name}
+            </option>
           ))}
         </select>
 

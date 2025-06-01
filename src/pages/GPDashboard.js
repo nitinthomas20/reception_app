@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import GPNavbar from '../components/GPNavbar';
+import ReviewForm from '../components/ReviewForm';
 
 function GPDashboard() {
   const [availableSlots, setAvailableSlots] = useState([]);
@@ -19,9 +21,7 @@ function GPDashboard() {
 
   const fetchData = async () => {
     const user = await fetchUser();
-    if (user) {
-      await fetchSlots(user.email);
-    }
+    if (user) await fetchSlots(user.email);
   };
 
   const fetchUser = async () => {
@@ -49,13 +49,10 @@ function GPDashboard() {
         { email: userEmail },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
       const slots = res.data;
-
-      setAvailableSlots(slots.filter((slot) => slot.status === 'available'));
-      setPendingSlots(slots.filter((slot) =>  slot.status === 'pending'));
-      setBookedSlots(slots.filter((slot) => slot.status === 'booked'));
-
+      setAvailableSlots(slots.filter((s) => s.status === 'available'));
+      setPendingSlots(slots.filter((s) => s.status === 'pending'));
+      setBookedSlots(slots.filter((s) => s.status === 'booked'));
     } catch (err) {
       console.error('Failed to fetch slots:', err);
     }
@@ -190,40 +187,43 @@ function GPDashboard() {
   );
 
   return (
-    <div style={styles.container}>
-      <h2 style={styles.header}>Welcome, {name}</h2>
+    <>
+      <GPNavbar />
+      <div style={styles.container}>
+        <h2 style={styles.header}>Welcome, {name}</h2>
 
-      <div style={styles.tabs}>
-        <button
-          style={styles.tabButton(activeTab === 'available')}
-          onClick={() => setActiveTab('available')}
-        >
-          Available
-        </button>
-        <button
-          style={styles.tabButton(activeTab === 'pending')}
-          onClick={() => setActiveTab('pending')}
-        >
-          Pending
-        </button>
-        <button
-          style={styles.tabButton(activeTab === 'booked')}
-          onClick={() => setActiveTab('booked')}
-        >
-          Booked
-        </button>
+        <div style={styles.tabs}>
+          <button
+            style={styles.tabButton(activeTab === 'available')}
+            onClick={() => setActiveTab('available')}
+          >
+            Available
+          </button>
+          <button
+            style={styles.tabButton(activeTab === 'pending')}
+            onClick={() => setActiveTab('pending')}
+          >
+            Pending
+          </button>
+          <button
+            style={styles.tabButton(activeTab === 'booked')}
+            onClick={() => setActiveTab('booked')}
+          >
+            Booked
+          </button>
+        </div>
+
+        {loading ? (
+          <p>Loading...</p>
+        ) : activeTab === 'available' ? (
+          renderSlots(availableSlots, [])
+        ) : activeTab === 'pending' ? (
+          renderSlots(pendingSlots, ['confirm', 'cancel'])
+        ) : (
+          renderSlots(bookedSlots, ['cancel'])
+        )}
       </div>
-
-      {loading ? (
-        <p>Loading...</p>
-      ) : activeTab === 'available' ? (
-        renderSlots(availableSlots, [])
-      ) : activeTab === 'pending' ? (
-        renderSlots(pendingSlots, ['confirm','cancel'])
-      ) : (
-        renderSlots(bookedSlots, ['cancel'])
-      )}
-    </div>
+    </>
   );
 }
 

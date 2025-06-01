@@ -17,24 +17,27 @@ function Login() {
       return;
     }
 
-    // 🔐 Normal login
     try {
       const res = await axios.post('http://localhost:5000/api/auth/login', {
         email,
         password
       });
 
+      // Save auth data
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('role', res.data.role);
       localStorage.setItem('email', res.data.email);
 
+      // Navigate based on role
       if (res.data.role === 'gp') {
         setTimeout(() => navigate('/gp', { state: { email: res.data.email } }), 0);
       } else {
         setTimeout(() => navigate('/home', { state: { email: res.data.email } }), 0);
       }
+
     } catch (err) {
-      alert('Login failed. Please check your credentials.');
+      const message = err.response?.data?.message || 'Login failed. Please check your credentials.';
+      alert(message);
     }
   };
 

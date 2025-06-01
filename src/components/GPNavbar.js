@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-const Navbar = () => {
+const GPNavbar = () => {
   const [reminders, setReminders] = useState([]);
   const token = localStorage.getItem("token");
   const email = localStorage.getItem("email");
-  const role = localStorage.getItem("role");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,7 +19,7 @@ const Navbar = () => {
         );
         setReminders(res.data);
       } catch (err) {
-        console.error("Failed to fetch user reminders", err);
+        console.error("Failed to fetch reminders", err);
       }
     };
     fetchReminders();
@@ -32,24 +31,23 @@ const Navbar = () => {
   };
 
   const handleProfile = () => {
-    if (role === "admin") {
-      window.location.href = "/admin/profile";
-    } else {
-      window.location.href = "/profile";
-    }
+    window.location.href = "/gp/profile";
+  };
+
+  const handleRevenue = () => {
+    window.location.href = "/gp/revenue";
   };
 
   return (
     <nav style={styles.navbar}>
       <div style={styles.logo}>MediBook</div>
-
       <div style={styles.menu}>
         {/* Notification Bell */}
         <div style={{ position: "relative", marginRight: "1rem" }}>
           <span
             style={{ cursor: "pointer", fontSize: "18px", color: "#4f46e5" }}
             onClick={() => {
-              const dropdown = document.getElementById("user-notif-dropdown");
+              const dropdown = document.getElementById("notif-dropdown");
               dropdown.style.display =
                 dropdown.style.display === "block" ? "none" : "block";
             }}
@@ -59,7 +57,7 @@ const Navbar = () => {
           {reminders.length > 0 && (
             <div style={styles.badge}>{reminders.length}</div>
           )}
-          <div id="user-notif-dropdown" style={styles.dropdown}>
+          <div id="notif-dropdown" style={styles.dropdown}>
             {reminders.length === 0 ? (
               <div style={styles.dropdownItem}>No upcoming appointments</div>
             ) : (
@@ -70,7 +68,7 @@ const Navbar = () => {
                     minute: "2-digit",
                   })}
                   <br />
-                  with {r.gpEmail}
+                  {r.bookedByEmail || r.gpEmail}
                 </div>
               ))
             )}
@@ -92,6 +90,9 @@ const Navbar = () => {
           <div id="dropdown-menu" style={styles.dropdown}>
             <div style={styles.dropdownItem} onClick={handleProfile}>
               Profile
+            </div>
+            <div style={styles.dropdownItem} onClick={handleRevenue}>
+              Revenue Report
             </div>
             <div
               style={styles.dropdownItem}
@@ -130,7 +131,6 @@ const styles = {
   menu: {
     display: "flex",
     alignItems: "center",
-    gap: "1rem",
   },
   badge: {
     position: "absolute",
@@ -170,4 +170,4 @@ const styles = {
   },
 };
 
-export default Navbar;
+export default GPNavbar;

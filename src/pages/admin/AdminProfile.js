@@ -1,5 +1,5 @@
 import React from "react"
-import Navbar from "../../components/Navbar" // Adjust the path if needed
+import Navbar from "../../components/AdminNavbar" // Adjust the path if needed
 
 const AdminProfile = () => {
   const adminInfo = {
@@ -76,4 +76,4 @@ const styles = {
   },
 }
 
-export default AdminProfile
+export default AdminProfile;

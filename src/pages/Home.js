@@ -4,6 +4,8 @@ import ServiceCard from '../components/ServiceCard';
 import { useUser } from './UserContext';
 import { motion } from 'framer-motion';
 import Navbar from '../components/Navbar';
+import ReviewForm from '../components/ReviewForm'; // ✅ ReviewForm added here
+
 export default function Home() {
   const [homeInfo, setHomeInfo] = useState('');
   const [services, setServices] = useState([]);
@@ -48,14 +50,14 @@ export default function Home() {
   return (
     <div
       style={{
-        background: '#ffffff',
+        background: '#f3f4f6',
         padding: '2rem',
         fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-        background: '#f3f4f6',
         minHeight: '100vh',
       }}
     >
-     < Navbar/>
+      <Navbar />
+
       <motion.section
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -105,7 +107,6 @@ export default function Home() {
             gap: '4rem',
             maxWidth: '1100px',
             margin: '0 auto',
-            
           }}
         >
           {services.map(service => (
